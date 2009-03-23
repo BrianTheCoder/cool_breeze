@@ -16,6 +16,22 @@ module Cloud
     module ClassMethods
       INDEX_TYPES = %w(value list set counter)
       
+      def property(name)
+        class_eval <<-RUBY, __FILE__, __LINE__
+          def #{name}()
+            data['#{name}']
+          end
+          
+          def #{name}=(val)
+            data['#{name}'] = val
+          end
+          
+          def #{name}?
+            data['#{name}'] == true
+          end
+        RUBY
+      end
+      
       def get(id)
         d = adapter(:tokyo)[id]
         return nil if d.nil?
@@ -124,20 +140,6 @@ module Cloud
       
       def destroy
         @t.delete(key)
-      end
-      
-      def method_missing(method_symbol, *arguments)
-        method_name = method_symbol.to_s
-
-        case method_name[-1..-1]
-        when "="
-          @data[method_name[0..-2]] = arguments.first.to_s
-        when "?"
-          @data[method_name[0..-2]] == true
-        else
-          # Returns nil on failure so forms will work
-          @data.has_key?(method_name) ? @data[method_name] : nil
-        end
       end
     end
   end
