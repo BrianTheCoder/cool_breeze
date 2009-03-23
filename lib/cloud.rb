@@ -1,10 +1,11 @@
 require 'extlib'
 require 'guid'
+require 'validatable'
 
 module Cloud
 
   # :stopdoc:
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
   # :startdoc:

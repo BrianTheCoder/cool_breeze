@@ -1,8 +1,11 @@
+require 'rubygems'
 require 'redis'
 require 'rufus/tokyo/tyrant'
 
 require File.expand_path(
     File.join(File.dirname(__FILE__), %w[.. lib cloud]))
+    
+Dir[File.expand_path(File.join(File.dirname(__FILE__), 'models','*'))].each{|m| require m}
 
 Spec::Runner.configure do |config|
   # == Mock Framework

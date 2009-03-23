@@ -1,13 +1,17 @@
 module Cloud
   module Model
     def self.included(model)
-      model.extend ClassMethods
       model.class_eval do
         attr_accessor :data
         
+        @class_indicies = {}
+        @instance_indicies = {}
+        
         include InstanceMethods
+        include Validatable
         include Extlib::Hook
       end
+      model.extend ClassMethods
     end
     module ClassMethods
       INDEX_TYPES = %w(value list set counter)
@@ -20,35 +24,47 @@ module Cloud
         m
       end
       
+      def class_indicies
+        @class_indicies
+      end
+      
+      def instance_indicies
+        @instance_indicies
+      end
+      
       def class_index(name,type, methods=nil, &proc)
         callbacks = methods || [:create, :destroy]
         #key is created on method call
         klass = Module.find_const("Cloud::Indicies::#{type.to_s.to_const_string}")
-        key = lambda do
-          name.is_a?(String) ? name : "#{self.to_s.downcase}:#{name}"
-        end
-        class_eval <<-RUBY, __FILE__, __LINE__
+        class_indicies[name] = "#{self.to_s.downcase}:#{name}"
+        instance_eval <<-RUBY, __FILE__, __LINE__
+          def #{name}(opts = {})
+            adapter(:redis)["#{self.to_s.downcase}:#{name}"]
+          end
         RUBY
         callbacks.each do |method|
           after method do
-            proc.call(klass.new(key.call,@r)) unless proc.nil?
+            key = "#{self.class.to_s.downcase}:#{name}"
+            proc.call(klass.new(key,@r)) unless proc.nil?
           end
         end
       end
       
       def instance_index(name,type, methods = nil, &proc)
         callbacks = methods || [:create, :destroy]
-        #key is created on method call
         klass = Module.find_const("Cloud::Indicies::#{type.to_s.to_const_string}")
-        instance_eval <<-RUBY, __FILE__, __LINE__
-        RUBY
-        before :save do
-          key = lambda do
-            name.is_a?(String) ? name : "#{self.class.to_s.downcase}:#{self.key}:#{name}"
+        instance_indicies[name] = ''
+        class_eval do
+          define_method name do |*args|
+            key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
+            p key
+            p @r
+            @r[key]
           end
           callbacks.each do |method|
             after method do
-              proc.call(klass.new(key.call,@r)) unless proc.nil?
+              key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
+              proc.call(klass.new(key,@r)) unless proc.nil?
             end
           end
         end
@@ -87,7 +103,7 @@ module Cloud
       end
       
       def []=(key,val)
-        @data[key] = val
+        @data[key] = val.to_s
       end
       
       def save
