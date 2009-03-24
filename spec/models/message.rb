@@ -20,7 +20,6 @@ class Message
   end
   
   instance_index :tags, :set do |obj|
-    p obj
-    p obj.parent
+    obj.push(self.text.split.first)
   end
 end
