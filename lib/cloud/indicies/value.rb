@@ -1,10 +1,8 @@
 module Cloud
   module Indicies
-    class Value
-      attr_accessor :key, :redis
-      def initialize(key,r)
-        @key = key
-        @redis = r
+    class Value < Abstract
+      def set(val)
+        @redis[@key] = val
       end
     end
   end

@@ -6,6 +6,7 @@ module Cloud
         
         @class_indicies = {}
         @instance_indicies = {}
+        @properties = []
         
         include InstanceMethods
         include Validatable
@@ -17,17 +18,18 @@ module Cloud
       INDEX_TYPES = %w(value list set counter)
       
       def property(name)
+        properties << name
         class_eval <<-RUBY, __FILE__, __LINE__
           def #{name}()
-            data['#{name}']
+            data['#{name.to_s}']
           end
           
           def #{name}=(val)
-            data['#{name}'] = val
+            data['#{name.to_s}'] = val
           end
           
           def #{name}?
-            data['#{name}'] == true
+            data['#{name.to_s}'] == true
           end
         RUBY
       end
@@ -35,9 +37,13 @@ module Cloud
       def get(id)
         d = adapter(:tokyo)[id]
         return nil if d.nil?
-        m = Message.new(d)
+        m = self.new(d)
         m.key = id
         m
+      end
+      
+      def properties
+        @properties
       end
       
       def class_indicies
@@ -61,7 +67,7 @@ module Cloud
         callbacks.each do |method|
           after method do
             key = "#{self.class.to_s.downcase}:#{name}"
-            proc.call(klass.new(key,@r)) unless proc.nil?
+            proc.call(klass.new(key,@r,self.class)) unless proc.nil?
           end
         end
       end
@@ -71,17 +77,15 @@ module Cloud
         klass = Module.find_const("Cloud::Indicies::#{type.to_s.to_const_string}")
         instance_indicies[name] = ''
         class_eval do
-          define_method name do |*args|
+          define_method name do
             key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-            p key
-            p @r
             @r[key]
           end
-          callbacks.each do |method|
-            after method do
-              key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-              proc.call(klass.new(key,@r)) unless proc.nil?
-            end
+        end
+        callbacks.each do |method|
+          after method do
+            key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
+            proc.call(klass.new(key,@r,self)) unless proc.nil?
           end
         end
       end
@@ -97,7 +101,10 @@ module Cloud
     
     module InstanceMethods
       def initialize(data = {})
-        @data = data.each{|k,v| data[k] = v.to_s}
+        @data = {}
+        data.each do |k,v|
+          self.send(:"#{k}=",v.to_s)
+        end
         @r = self.class.adapter(:redis)
         @t = self.class.adapter(:tokyo)
       end
@@ -109,10 +116,12 @@ module Cloud
       def key=(k)
         @key = k
       end
-      
+            
       def new?
         @t[key].nil?
       end
+      
+      alias :new_record? :new?
       
       def [](key)
         @data[key]

@@ -1,14 +1,20 @@
 module Cloud
   module Indicies
-    class List
-      attr_accessor :key, :redis
-      def initialize(key,r)
-        @key = key
-        @redis = r
+    class List < Abstract
+      def length
+        @redis.list_length(@key)
       end
       
       def push(val)
         @redis.push_tail(@key, val)
+      end
+      
+      def pop
+        @redis.pop_tail(@key)
+      end
+      
+      def unshift
+        @redis.pop_head(@key)
       end
       
       def shift(val)
