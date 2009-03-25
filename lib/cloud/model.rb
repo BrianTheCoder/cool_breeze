@@ -34,6 +34,18 @@ module Cloud
         RUBY
       end
       
+      def cast(name,opts = {})
+        klass = opts.delete(:as)
+        raise if klass.nil?
+        class_eval <<-RUBY, __FILE__, __LINE__
+          def #{name}()
+          end
+          
+          def #{name}=(val)
+          end
+        RUBY
+      end
+      
       def get(id)
         d = adapter(:tokyo)[id]
         return nil if d.nil?
@@ -67,7 +79,7 @@ module Cloud
         callbacks.each do |method|
           after method do
             key = "#{self.class.to_s.downcase}:#{name}"
-            proc.call(klass.new(key,@r,self.class)) unless proc.nil?
+            proc.call(klass.new(key,@r)) unless proc.nil?
           end
         end
       end
@@ -85,7 +97,7 @@ module Cloud
         callbacks.each do |method|
           after method do
             key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-            proc.call(klass.new(key,@r,self)) unless proc.nil?
+            proc.call(klass.new(key,@r)) unless proc.nil?
           end
         end
       end
