@@ -35,6 +35,7 @@ module Cloud
       end
       
       def cast(name,opts = {})
+        property(name) unless properties.include?(name)
         klass = opts.delete(:as)
         raise if klass.nil?
         class_eval <<-RUBY, __FILE__, __LINE__
@@ -47,11 +48,31 @@ module Cloud
       end
       
       def get(id)
-        d = adapter(:tokyo)[id]
+        d = data_store[id]
         return nil if d.nil?
         m = self.new(d)
         m.key = id
         m
+      end
+      
+      def find(query)
+        rs = Cloud::Query.new(self,query)
+        l = LazyArray.new
+        l = rs.to_a
+        rs.free
+        l
+      end
+      
+      def first(query)
+        find(query.merge(:limit => 1))
+      end
+      
+      def index_store
+        adapter(:redis)
+      end
+      
+      def data_store
+        adapter(:tokyo)
       end
       
       def properties
@@ -69,7 +90,7 @@ module Cloud
       def class_index(name,type, methods=nil, &proc)
         callbacks = methods || [:create, :destroy]
         #key is created on method call
-        klass = Module.find_const("Cloud::Indicies::#{type.to_s.to_const_string}")
+        klass = Module.find_const("Cloud::Indices::#{type.to_s.to_const_string}")
         class_indicies[name] = "#{self.to_s.downcase}:#{name}"
         instance_eval <<-RUBY, __FILE__, __LINE__
           def #{name}(opts = {})
@@ -79,14 +100,14 @@ module Cloud
         callbacks.each do |method|
           after method do
             key = "#{self.class.to_s.downcase}:#{name}"
-            proc.call(klass.new(key,@r)) unless proc.nil?
+            proc.call(klass.new(key,index_store)) unless proc.nil?
           end
         end
       end
       
       def instance_index(name,type, methods = nil, &proc)
         callbacks = methods || [:create, :destroy]
-        klass = Module.find_const("Cloud::Indicies::#{type.to_s.to_const_string}")
+        klass = Module.find_const("Cloud::Indices::#{type.to_s.to_const_string}")
         instance_indicies[name] = ''
         class_eval do
           define_method name do
@@ -97,7 +118,7 @@ module Cloud
         callbacks.each do |method|
           after method do
             key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-            proc.call(klass.new(key,@r)) unless proc.nil?
+            proc.call(klass.new(key,index_store)) unless proc.nil?
           end
         end
       end
@@ -117,8 +138,8 @@ module Cloud
         data.each do |k,v|
           self.send(:"#{k}=",v.to_s)
         end
-        @r = self.class.adapter(:redis)
-        @t = self.class.adapter(:tokyo)
+        @index_store = self.class.index_store
+        @data_store = self.class.data_store
       end
       
       def key
@@ -130,7 +151,7 @@ module Cloud
       end
             
       def new?
-        @t[key].nil?
+        @data_store[key].nil?
       end
       
       alias :new_record? :new?
@@ -152,15 +173,15 @@ module Cloud
       end
       
       def create
-        @t[key] = @data
+        @data_store[key] = @data
       end
       
       def update
-        @t[key] = @data
+        @data_store[key] = @data
       end
       
       def destroy
-        @t.delete(key)
+        @data_store.delete(key)
       end
     end
   end

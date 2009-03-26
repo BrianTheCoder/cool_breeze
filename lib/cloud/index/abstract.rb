@@ -12,7 +12,7 @@ module Cloud
       end
       
       def type_klass
-        @type_klass ||= Module.find_const("Cloud::Indicies::#{@type.to_s.to_const_string}")
+        @type_klass ||= Module.find_const("Cloud::Indices::#{@type.to_s.to_const_string}")
       end
       
       def run(obj, &proc)
