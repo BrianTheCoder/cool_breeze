@@ -1,5 +1,5 @@
 class Message
-  include Cloud::Model
+  include CoolBreeze::Model
   
   property :profile_image_url
   property :created_at

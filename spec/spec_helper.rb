@@ -3,7 +3,7 @@ require 'redis'
 require 'rufus/tokyo/tyrant'
 
 require File.expand_path(
-    File.join(File.dirname(__FILE__), %w[.. lib cloud]))
+    File.join(File.dirname(__FILE__), %w[.. lib cool_breeze]))
     
 Dir[File.expand_path(File.join(File.dirname(__FILE__), 'models','*'))].each{|m| require m}
 

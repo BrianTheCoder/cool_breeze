@@ -1,4 +1,4 @@
-module Cloud
+module CoolBreeze
   module Model
     def self.included(model)
       model.class_eval do
@@ -56,7 +56,7 @@ module Cloud
       end
       
       def find(query)
-        rs = Cloud::Query.new(self,query)
+        rs = CoolBreeze::Query.new(self,query)
         l = LazyArray.new
         l = rs.to_a
         rs.free
@@ -90,7 +90,7 @@ module Cloud
       def class_index(name,type, methods=nil, &proc)
         callbacks = methods || [:create, :destroy]
         #key is created on method call
-        klass = Module.find_const("Cloud::Indices::#{type.to_s.to_const_string}")
+        klass = Module.find_const("CoolBreeze::Indices::#{type.to_s.to_const_string}")
         class_indicies[name] = "#{self.to_s.downcase}:#{name}"
         instance_eval <<-RUBY, __FILE__, __LINE__
           def #{name}(opts = {})
@@ -107,7 +107,7 @@ module Cloud
       
       def instance_index(name,type, methods = nil, &proc)
         callbacks = methods || [:create, :destroy]
-        klass = Module.find_const("Cloud::Indices::#{type.to_s.to_const_string}")
+        klass = Module.find_const("CoolBreeze::Indices::#{type.to_s.to_const_string}")
         instance_indicies[name] = ''
         class_eval do
           define_method name do

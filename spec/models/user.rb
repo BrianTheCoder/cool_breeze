@@ -1,5 +1,5 @@
 class User
-  include Cloud::Model
+  include CoolBreeze::Model
   
   property :email
   property :salt

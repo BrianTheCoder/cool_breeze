@@ -1,4 +1,4 @@
-module Cloud
+module CoolBreeze
   module Index
     class InstanceIndex < Abstract
       def get_key(klass)

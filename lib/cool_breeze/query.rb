@@ -1,8 +1,8 @@
-module Cloud
+module CoolBreeze
   class Query
     def initialize(klass,conditions = {})
       @klass = klass
-      @query = Rufus::Tokyo::TableQuery.new(Cloud::Connections.adapters[:tokyo])
+      @query = Rufus::Tokyo::TableQuery.new(CoolBreeze::Connections.adapters[:tokyo])
       parse_conditions(conditions)
     end
     

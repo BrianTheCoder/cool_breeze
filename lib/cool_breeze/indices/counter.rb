@@ -1,12 +1,12 @@
-module Cloud
+module CoolBreeze
   module Indices
     class Counter
       def incr
-        @redis.incr(@key)
+        @index_store.incr(@key)
       end
       
       def decr
-        @redis.decr(@key)
+        @index_store.decr(@key)
       end
     end
   end

@@ -1,26 +1,34 @@
-cloud
-    by FIXME (your name)
-    FIXME (url)
+cool_breeze
+    by Brian Smith
+    http://brianthecoder.com
+    brian@46blocks.com
 
 == DESCRIPTION:
 
-FIXME (describe your package)
+The most awesomest thing ever
 
 == FEATURES/PROBLEMS:
 
-* FIXME (list of features or problems)
+  * need to write tests for queries
+  * uniqueness validator
+  * finish up indexes
+  * allow other data stores (bit table, simple db, couch?)
 
 == SYNOPSIS:
 
-  FIXME (code sample of usage)
+  * coming soon
 
 == REQUIREMENTS:
 
-* FIXME (list of requirements)
+  * guid
+  * extlib
+  * validatable
+  * redis
+  * rufus-tokyo (ruby-tokyotyrant when its ready)
 
 == INSTALL:
 
-* FIXME (sudo gem install, anything else)
+  * its a gem on github, you should know the routine by now
 
 == LICENSE:
 

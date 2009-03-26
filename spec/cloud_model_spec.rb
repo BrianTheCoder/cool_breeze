@@ -1,9 +1,9 @@
 require File.join(File.dirname(__FILE__), %w[spec_helper])
 
-describe "Cloud::Model" do
+describe "CoolBreeze::Model" do
   before do
-    Cloud::Connections.setup(:redis, Redis.new)
-    Cloud::Connections.setup(:tokyo, Rufus::Tokyo::TyrantTable.new('localhost', 45000))
+    CoolBreeze::Connections.setup(:redis, Redis.new)
+    CoolBreeze::Connections.setup(:tokyo, Rufus::Tokyo::TyrantTable.new('localhost', 45000))
     @data = {
       "profile_image_url" => "http://s3.amazonaws.com/twitter_production/profile_images/74591615/01-30-09_2327_normal.jpg", 
       "created_at" => "Sun, 22 Mar 2009 00:13:11 +0000",

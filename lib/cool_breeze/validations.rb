@@ -1,4 +1,4 @@
-module Cloud
+module CoolBreeze
   module Validations
     def self.includes(model)
     end

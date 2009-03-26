@@ -2,7 +2,7 @@ require 'extlib'
 require 'guid'
 require 'validatable'
 
-module Cloud
+module CoolBreeze
 
   # :stopdoc:
   VERSION = '0.1.2'
@@ -45,8 +45,8 @@ module Cloud
     Dir.glob(search_me).sort.each {|rb| require rb}
   end
 
-end  # module Cloud
+end  # module CoolBreeze
 
-Cloud.require_all_libs_relative_to(__FILE__)
+CoolBreeze.require_all_libs_relative_to(__FILE__)
 
 # EOF

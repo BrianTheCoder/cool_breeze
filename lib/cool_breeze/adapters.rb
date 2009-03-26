@@ -1,4 +1,4 @@
-module Cloud
+module CoolBreeze
   class Connections
     @adapters = {}
     def self.adapters

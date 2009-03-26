@@ -1,8 +1,8 @@
-module Cloud
+module CoolBreeze
   module Indices
     class Value < Abstract
       def set(val)
-        @redis[@key] = val
+        @index_store[@key] = val
       end
     end
   end

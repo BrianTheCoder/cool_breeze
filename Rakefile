@@ -14,16 +14,16 @@ rescue LoadError
 end
 
 ensure_in_path 'lib'
-require 'cloud'
+require 'cool_breeze'
 
 task :default => 'spec:run'
 
-PROJ.name = 'cloud'
-PROJ.authors = 'FIXME (who is writing this software)'
-PROJ.email = 'FIXME (your e-mail)'
-PROJ.url = 'FIXME (project homepage)'
-PROJ.version = Cloud::VERSION
-PROJ.rubyforge.name = 'cloud'
+PROJ.name = 'CoolBreeze'
+PROJ.authors = 'Brian Smith'
+PROJ.email = 'brian@46blocks.com'
+PROJ.url = 'http://github.com/BrianTheCoder/'
+PROJ.version = CoolBreeze::VERSION
+PROJ.rubyforge.name = 'cool_breeze'
 
 PROJ.spec.opts << '--color'
 

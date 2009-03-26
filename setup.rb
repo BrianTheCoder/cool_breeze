@@ -1,10 +1,10 @@
-require 'lib/cloud'
+require 'lib/cool_breeze'
 require 'spec/models/message'
 require 'redis'
 require 'rufus/tokyo/tyrant'
 
-Cloud::Connections.setup(:redis, Redis.new)
-Cloud::Connections.setup(:tokyo, Rufus::Tokyo::TyrantTable.new('localhost', 45000))
+CoolBreeze::Connections.setup(:redis, Redis.new)
+CoolBreeze::Connections.setup(:tokyo, Rufus::Tokyo::TyrantTable.new('localhost', 45000))
 
 @data = {
   "profile_image_url" => "http://s3.amazonaws.com/twitter_production/profile_images/74591615/01-30-09_2327_normal.jpg", 

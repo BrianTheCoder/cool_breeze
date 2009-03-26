@@ -1,4 +1,4 @@
-module Cloud
+module CoolBreeze
   module Index
     class ClassIndex < Abstract
     end
