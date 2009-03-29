@@ -1,52 +1,15 @@
 module CoolBreeze
   module Model
     def self.included(model)
-      model.class_eval do
-        attr_accessor :data
-        
-        @class_indicies = {}
-        @instance_indicies = {}
-        @properties = []
-        
-        include InstanceMethods
-        include Validatable
-        include Extlib::Hook
-      end
-      model.extend ClassMethods
+      model.send(:attr_accessor, :data)
+      model.send(:include, InstanceMethods)
+      model.send(:include, Validatable)
+      model.send(:include, Extlib::Hook)
+      model.send(:include, CoolBreeze::Mixins::Properties)
+      model.send(:include, CoolBreeze::Mixins::Indices)
+      model.extend(ClassMethods)
     end
-    module ClassMethods
-      INDEX_TYPES = %w(value list set counter)
-      
-      def property(name)
-        properties << name
-        class_eval <<-RUBY, __FILE__, __LINE__
-          def #{name}()
-            data['#{name.to_s}']
-          end
-          
-          def #{name}=(val)
-            data['#{name.to_s}'] = val
-          end
-          
-          def #{name}?
-            data['#{name.to_s}'] == true
-          end
-        RUBY
-      end
-      
-      def cast(name,opts = {})
-        property(name) unless properties.include?(name)
-        klass = opts.delete(:as)
-        raise if klass.nil?
-        class_eval <<-RUBY, __FILE__, __LINE__
-          def #{name}()
-          end
-          
-          def #{name}=(val)
-          end
-        RUBY
-      end
-      
+    module ClassMethods            
       def get(id)
         d = data_store[id]
         return nil if d.nil?
@@ -54,6 +17,8 @@ module CoolBreeze
         m.key = id
         m
       end
+      
+      alias :[] :get
       
       def find(query)
         rs = CoolBreeze::Query.new(self,query)
@@ -74,55 +39,7 @@ module CoolBreeze
       def data_store
         adapter(:tokyo)
       end
-      
-      def properties
-        @properties
-      end
-      
-      def class_indicies
-        @class_indicies
-      end
-      
-      def instance_indicies
-        @instance_indicies
-      end
-      
-      def class_index(name,type, methods=nil, &proc)
-        callbacks = methods || [:create, :destroy]
-        #key is created on method call
-        klass = Module.find_const("CoolBreeze::Indices::#{type.to_s.to_const_string}")
-        class_indicies[name] = "#{self.to_s.downcase}:#{name}"
-        instance_eval <<-RUBY, __FILE__, __LINE__
-          def #{name}(opts = {})
-            adapter(:redis)["#{self.to_s.downcase}:#{name}"]
-          end
-        RUBY
-        callbacks.each do |method|
-          after method do
-            key = "#{self.class.to_s.downcase}:#{name}"
-            proc.call(klass.new(key,index_store)) unless proc.nil?
-          end
-        end
-      end
-      
-      def instance_index(name,type, methods = nil, &proc)
-        callbacks = methods || [:create, :destroy]
-        klass = Module.find_const("CoolBreeze::Indices::#{type.to_s.to_const_string}")
-        instance_indicies[name] = ''
-        class_eval do
-          define_method name do
-            key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-            @r[key]
-          end
-        end
-        callbacks.each do |method|
-          after method do
-            key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-            proc.call(klass.new(key,index_store)) unless proc.nil?
-          end
-        end
-      end
-      
+            
       def all(*ids)
         ids.map{|id| get(id)}
       end
