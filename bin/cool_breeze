@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+puts "Its getting cold in here"
+
+system("redis-server redis.conf")
+
+puts "Redis started"
+ROOT = File.expand_path(File.join(File.dirname(__FILE__)),'..')
+
+TokyoConfig = {
+  :port => 45000,
+  :data_file => File.join(ROOT,'log','tokyo.tct'),
+  :pid_file => File.join(ROOT,'log','tokyo.pid'),
+  :log_file => File.join(ROOT,'log','tokyo.log')
+}
+
+system("ttserver -dmn -port #{TokyoConfig[:port]} -log #{TokyoConfig[:log_file]} -pid #{TokyoConfig[:pid_file]} #{TokyoConfig[:data_file]}")
+
+puts "Tokyo server started"
+puts "Lets rock and roll!"
