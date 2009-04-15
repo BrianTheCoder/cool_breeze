@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors = ["brianthecoder"]
   s.date = %q{2009-04-15}
   s.email = %q{wbsmith83@gmail.com}
-  s.executables = ["cool_breeze", "dump.rdb", "redis.conf"]
+  s.executables = ["cool_breeze", "redis.conf"]
   s.extra_rdoc_files = [
     "README.txt"
   ]
@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION.yml",
     "bin/cool_breeze",
-    "bin/dump.rdb",
     "bin/redis.conf",
     "lib/cool_breeze.rb",
     "lib/cool_breeze/association.rb",
