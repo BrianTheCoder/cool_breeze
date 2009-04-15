@@ -28,6 +28,14 @@ module CoolBreeze
       def range(start, stop)
         @index_store.list_range(@key, start, stop)
       end
+      
+      def index(index)
+        @index_store.list_index(@key, index)
+      end
+      
+      def remove(count, value)
+        @index_store.list_rm(@key, count, value)
+      end
     end
   end
 end

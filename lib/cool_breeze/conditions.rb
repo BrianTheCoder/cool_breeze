@@ -1,6 +1,6 @@
 class Symbol
-  def streq
-		[self.to_s,:streq]
+  def eq
+		[self.to_s,:eq]
 	end
 	
   def includes
@@ -30,15 +30,7 @@ class Symbol
   def matches
 		[self.to_s,:matches]
 	end
-
-  def numeq
-		[self.to_s,:numeq]
-	end
-
-  def numgt
-		[self.to_s,:numgt]
-	end
-
+	
   def gt
 		[self.to_s,:gt]
 	end

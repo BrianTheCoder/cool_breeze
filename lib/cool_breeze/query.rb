@@ -16,7 +16,15 @@ module CoolBreeze
       @query.limit(limit, offset || -1) unless limit.nil?
       # take conditions from :prop.op => val to add(prop, op, value)
       conds.each do |key, val|
-        raise unless @klass.properties.include?(key.first)
+        key = [key,:eq] if key.is_a?(Symbol)
+        if key.last == :eq 
+          if val.is_a? Numeric
+            key[1] = :numeq
+          else val.is_a? String
+            key[1] = :streq
+          end
+        end
+        key[0] = key.first.to_s
         @query.add *(key + [val.to_s])
       end
       

@@ -12,6 +12,11 @@ module CoolBreeze
         EOS
         
         base.extend(ClassMethods)
+        
+        def destroy
+          instance_indices.each{|idx| idx.destroy }
+          super
+        end
       end
     
       module ClassMethods
@@ -23,36 +28,24 @@ module CoolBreeze
           @instance_indicies
         end
       
-        def class_index(name,type, methods=nil, &proc)
-          callbacks = methods || [:create, :destroy]
-          #key is created on method call
-          klass = Module.find_const("CoolBreeze::Indices::#{type.to_s.to_const_string}")
+        def class_index(name,type)
+          klass = Module.find_const("CoolBreeze::Types::#{type.to_s.to_const_string}")
           instance_eval <<-RUBY, __FILE__, __LINE__
+            class_indices[name] = klass.new("#{self.to_s.downcase}:#{name}")
             def #{name}(opts = {})
-              CoolBreeze::Connections.adapters[:redis]["#{self.to_s.downcase}:#{name}"]
+              class_indices[:"#{name}"]
             end
           RUBY
-          callbacks.each do |method|
-            after method do
-              key = "#{self.class.to_s.downcase}:#{name}"
-              proc.call(klass.new(key,index_store)) unless proc.nil?
-            end
-          end
         end
       
-        def instance_index(name,type, methods = nil, &proc)
-          callbacks = methods || [:create, :destroy]
-          klass = Module.find_const("CoolBreeze::Indices::#{type.to_s.to_const_string}")
+        def instance_index(name,type)
+          klass = Module.find_const("CoolBreeze::Types::#{type.to_s.to_const_string}")
           class_eval do
             define_method name do
-              key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-              CoolBreeze::Connections.adapters[:redis][key]
-            end
-          end
-          callbacks.each do |method|
-            after method do
-              key = "#{self.class.to_s.downcase}:#{self.key}:#{name}"
-              proc.call(klass.new(key,index_store)) unless proc.nil?
+              if instance_indices[name].nil?
+                instance_indices[name] = klass.new("#{self.key}:#{name}")
+              end
+              instance_indices[name]
             end
           end
         end
